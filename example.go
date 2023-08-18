@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"time"
 
@@ -53,15 +52,12 @@ func example() {
 			panic(err)
 		}
 
-		bytes, err := json.Marshal(weather)
-		if err != nil {
-			panic(err)
-		}
+		resp := usecase.WeatherPresenter(weather)
 
 		// Now that we know we've gotten a new message, we can construct a
 		// reply! We'll take the Chat ID and Text from the incoming message
 		// and use it to create a new message.
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, string(bytes))
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, resp)
 		// We'll also say that this message is a reply to the previous message.
 		// For any other specifications than Chat ID or Text, you'll need to
 		// set fields on the `MessageConfig`.

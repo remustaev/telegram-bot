@@ -14,7 +14,6 @@ import (
 // authz login password
 
 // OpenWeatherMap API
-// API KEY - f2be13b8fe65a7e49e1b4314d5404af8
 // https://api.openweathermap.org/data/2.5/weather?lat=52.3417853&lon=4.9040615&appid=f2be13b8fe65a7e49e1b4314d5404af8
 
 type OpenWeatherMapClient struct {
@@ -38,6 +37,7 @@ func New(apiKey string) *OpenWeatherMapClient {
 }
 
 func (c *OpenWeatherMapClient) GetWeather(ctx context.Context, location entity.Location, _ time.Time) (entity.Weather, error) {
+	// api doc - https://openweathermap.org/current
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.openweathermap.org/data/2.5/weather", nil)
 	if err != nil {
 		return entity.Weather{}, fmt.Errorf("create OpenWeatherMapClient.GetWeather request failed %w: %w", entity.ErrInternal, err)
@@ -46,6 +46,7 @@ func (c *OpenWeatherMapClient) GetWeather(ctx context.Context, location entity.L
 	q := req.URL.Query()
 	q.Add("lat", fmt.Sprintf("%f", location.Latitude))
 	q.Add("lon", fmt.Sprintf("%f", location.Longitude))
+	q.Add("units", "metric")
 	q.Add("appid", c.apiToken)
 	req.URL.RawQuery = q.Encode()
 
