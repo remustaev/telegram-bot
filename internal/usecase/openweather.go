@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	lru "github.com/hashicorp/golang-lru/v2"
+
 	"github.com/remustaev/telegram-bot/internal/entity"
 )
 
@@ -19,6 +21,8 @@ import (
 type OpenWeatherMapClient struct {
 	apiToken string
 	client   *http.Client
+
+	cache *lru.Cache[entity.Location, entity.Weather]
 }
 
 func New(apiKey string) *OpenWeatherMapClient {
@@ -30,13 +34,21 @@ func New(apiKey string) *OpenWeatherMapClient {
 	}
 	client := &http.Client{Transport: tr}
 
+	cache, _ := lru.New[entity.Location, entity.Weather](128)
+
 	return &OpenWeatherMapClient{
 		apiToken: apiKey,
 		client:   client,
+		cache:    cache,
 	}
 }
 
 func (c *OpenWeatherMapClient) GetWeather(ctx context.Context, location entity.Location, _ time.Time) (entity.Weather, error) {
+	w, ok := c.cache.Get(location)
+	if ok {
+		return w, nil
+	}
+
 	// api doc - https://openweathermap.org/current
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.openweathermap.org/data/2.5/weather", nil)
 	if err != nil {
@@ -71,5 +83,8 @@ func (c *OpenWeatherMapClient) GetWeather(ctx context.Context, location entity.L
 		return entity.Weather{}, fmt.Errorf("read OpenWeatherMapClient.GetWeather response body failed %w: %w", entity.ErrInternal, err)
 	}
 
-	return mapToWeather(respDTO), nil
+	w = mapToWeather(respDTO)
+	c.cache.Add(location, w)
+
+	return w, nil
 }
