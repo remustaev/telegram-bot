@@ -55,12 +55,17 @@ type ResponseDTO struct {
 	Timezone    int64       `json:"timezone"`
 	ID          int64       `json:"id"`
 	Name        string      `json:"name"`
-	Cod         int64       `json:"cod"`
 }
 
 func mapToWeather(respDTO ResponseDTO) entity.Weather {
+	// todo handle few weathers
+	var condID int64
+	for i := range respDTO.Weather {
+		condID = respDTO.Weather[i].ID
+	}
+
 	return entity.Weather{
-		Condition: mapToCondition(respDTO.Cod),
+		Condition: mapToCondition(condID),
 		Temperature: entity.Temperature{
 			Min:       respDTO.Main.TempMin,
 			Max:       respDTO.Main.TempMax,

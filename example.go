@@ -13,7 +13,10 @@ import (
 )
 
 func example() {
-	godotenv.Load(".env")
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err)
+	}
 
 	owm := usecase.New(os.Getenv("OPEN_WEATHER_MAP_API_TOKEN"))
 
