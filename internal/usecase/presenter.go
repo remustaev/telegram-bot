@@ -44,9 +44,11 @@ import (
 
 func WeatherPresenter(weather entity.Weather) string {
 	cond := ConditionPresenter(weather.Condition)
-	hum := fmt.Sprintf("💧humidity: %d %%", weather.Humidity)
+	hum := fmt.Sprintf("💧 humidity: \t%d %%", weather.Humidity)
+	wind := fmt.Sprintf("💨 wind: \t%.2f Km\\h", weather.Wind.Speed)
+	pressure := fmt.Sprintf("📊 pressure: \t%d hPa", weather.Pressure)
 	temp := TemperaturePresenter(weather.Temperature)
-	return fmt.Sprintf("%s\n%s\n%s\n", cond, temp, hum)
+	return fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n", cond, temp, hum, wind, pressure)
 }
 
 func TemperaturePresenter(temperature entity.Temperature) string {
@@ -65,33 +67,37 @@ func TemperaturePresenter(temperature entity.Temperature) string {
 		cur = fmt.Sprintf("+%.0f", temperature.Current)
 	}
 
-	return fmt.Sprintf("🌡temperature: %s °C", cur)
+	return fmt.Sprintf("🌡 temperature: \t%s °C", cur)
 }
 
 func ConditionPresenter(condition entity.Condition) string {
+	var icon, name string
 	switch condition {
 	case entity.Thunderstorm:
-		return fmt.Sprintf("⚡️condition: thunderstorm")
-	case entity.Drizzle:
-		return fmt.Sprintf("💦condition: drizzle")
-	case entity.Rain:
-		return fmt.Sprintf("☔️condition: rain")
+		icon = "⚡️"
+		name = "thunderstorm"
+	case entity.Drizzle, entity.Rain:
+		icon = "☔️"
+		name = "rain"
 	case entity.Snow:
-		return fmt.Sprintf("❄️condition: snow")
+		icon = "❄️"
+		name = "snow"
 	case entity.Clear:
-		return fmt.Sprintf("☀️condition: clear")
+		icon = "☀️"
+		name = "clear"
 	case entity.Clouds:
-		return fmt.Sprintf("☁️condition: clouds")
-	case entity.Smoke:
-		return fmt.Sprintf("🌫condition: smoke")
-	case entity.Haze:
-		return fmt.Sprintf("🌫condition: haze")
+		icon = "☁️"
+		name = "clouds"
+	case entity.Smoke, entity.Haze:
+		icon = "🌫"
+		name = "haze"
 	case entity.Dust:
-		return fmt.Sprintf("⏳condition: dust")
-	case entity.Squall:
-		return fmt.Sprintf("💨condition: squall")
-	case entity.Tornado:
-		return fmt.Sprintf("🌪condition: tornado")
+		icon = "⏳"
+		name = "dust"
+	case entity.Tornado, entity.Squall:
+		icon = "🌪"
+		name = "tornado"
 	}
-	return ""
+
+	return fmt.Sprintf("%s condition: \t%s", icon, name)
 }

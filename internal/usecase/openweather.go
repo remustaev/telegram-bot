@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	lru "github.com/hashicorp/golang-lru/v2"
+	lru "github.com/hashicorp/golang-lru/v2/expirable"
 
 	"github.com/remustaev/telegram-bot/internal/entity"
 )
@@ -22,7 +22,7 @@ type OpenWeatherMapClient struct {
 	apiToken string
 	client   *http.Client
 
-	cache *lru.Cache[entity.Location, entity.Weather]
+	cache *lru.LRU[entity.Location, entity.Weather]
 }
 
 func New(apiKey string) *OpenWeatherMapClient {
@@ -34,7 +34,7 @@ func New(apiKey string) *OpenWeatherMapClient {
 	}
 	client := &http.Client{Transport: tr}
 
-	cache, _ := lru.New[entity.Location, entity.Weather](128)
+	cache := lru.NewLRU[entity.Location, entity.Weather](128, nil, time.Hour)
 
 	return &OpenWeatherMapClient{
 		apiToken: apiKey,
