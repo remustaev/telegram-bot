@@ -73,7 +73,7 @@ func mapToWeather(respDTO ResponseDTO) entity.Weather {
 			FeelsLike: respDTO.Main.FeelsLike,
 		},
 		Wind: entity.Wind{
-			Speed:  respDTO.Wind.Speed,
+			Speed:  respDTO.Wind.Speed * 3.6,
 			Degree: respDTO.Wind.Deg,
 		},
 		Pressure: respDTO.Main.Pressure,
